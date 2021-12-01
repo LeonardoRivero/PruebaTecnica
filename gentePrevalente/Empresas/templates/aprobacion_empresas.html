@@ -1,0 +1,179 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<div id="blockContent">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a style="text-decoration:none" href="/agregar_empresa/">Agregar Empresa</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Aprobacion de Empresas</li>
+        </ol>
+    </nav>
+    <div class="container px-4 py-5" style="background-color:white">
+        <form class="row g-3 needs-validation">
+            <div class="d-flex justify-content-center">
+                <img v-bind:src="empresaSeleccionada.logo" alt="logo" class="center" height="87" width="100">
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="nombre" class="form-label">Nombre de la Empresa</label>
+                <input type="text" class="form-control" id="nombre" v-model="empresaSeleccionada.nombre" required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="razonSocial" class="form-label">Razon Social</label>
+                <input type="text" class="form-control" id="razonSocial" v-model="empresaSeleccionada.razon_social"
+                    required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="TipoID" class="form-label">Tipo de Identificacion</label>
+                <input type="text" class="form-control" id="TipoID" v-model="empresaSeleccionada.NIT" required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="Identificacion" class="form-label">Identificacion</label>
+                <input type="text" class="form-control" id="Identificacion" v-model="empresaSeleccionada.identificacion"
+                    required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="empleados" class="form-label"># de Empleados</label>
+                <input type="text" class="form-control" id="empleados" v-model="empresaSeleccionada.num_empleados"
+                    required>
+            </div>
+            <div class="col-md-4 position-relative d-none d-md-block d-lg-block d-xl-block">
+                <label class="form-label"> .</label>
+                <button class="form-control bg-white" type="button" data-bs-toggle="modal"
+                    data-bs-target="#StaticModal"><i class="bi bi-paperclip"></i>Ver Archivos
+                    Adjuntos</button>
+            </div>
+            <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none"> Documentos Guardados
+                <div v-for="item,index in allArchivos">
+                    <a style="text-decoration:none" class="lead" href="#"
+                        @click="downloadFile(item.id)">${item.ruta_archivo}$ <i class="bi bi-file-pdf"></i></a>
+                </div>
+            </div>
+        </form>
+        <button type="button" class="btn btn-light" @click="decremContador()" id="decremButton">
+            <img src="../static/plugins/svg/arrow-left-circle-fill.svg" class="card-img-left bg" alt="..." height="50"
+                width="50"></i>
+        </button>
+        ${posicion+1}$ of ${allData.length}$
+        <button type="button" class="btn btn-light" @click="incremContador()" id="incremButton">
+            <img src="../static/plugins/svg/arrow-right-circle-fill.svg" class="card-img-left bg" alt="..." height="50"
+                width="50">
+        </button>
+
+        <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="StaticModal" tabindex="-1"
+            aria-labelledby="basicModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="basicModalLabel">Documentos Cargados</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-for="item,index in allArchivos">
+                            <!-- <a style="text-decoration:none" class="lead" v-bind:href="`/api/archivos/`+item.id+`/`">${item.ruta_archivo}$ <i class="bi bi-file-pdf"></i></a> -->
+                            <a style="text-decoration:none" class="lead" href="#"
+                                @click="downloadFile(item.id)">${item.ruta_archivo}$ <i class="bi bi-file-pdf"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/plugins/jquery/jquery.min.js"></script>
+<script src="/static/plugins/project/request.js"></script>
+<script src="/static/plugins/vue/vue.js"></script>
+<script>
+    vueList = new Vue({
+        delimiters: ['${', '}$'],
+        el: '#blockContent',
+        data() {
+            return {
+                allData: {},
+                allArchivos: {},
+                posicion: 0,
+                empresaSeleccionada: [],
+                windowHeight: window.innerHeight,
+                txt: ''
+            }
+        },
+        watch: {
+            windowHeight(newHeight, oldHeight) {
+                this.txt = `it changed to ${newHeight} from ${oldHeight}`;
+                console.log(this.txt)
+                this.getArchivosList()
+            }
+        },
+        mounted() {
+            this.getEmpresaList()
+            this.$nextTick(() => {
+                window.addEventListener('resize', this.onResize);
+            })
+        },
+        methods: {
+            onResize() {
+                this.windowHeight = window.innerHeight
+            },
+            async getEmpresaList() {
+                url = "/api/empresa/all/"
+                let response = await request_get(url);
+                this.allData = await response.json()
+                console.log(this.allData);
+                this.empresaSeleccionada = this.allData[this.posicion]
+            },
+            async getArchivosList(id) {
+                // let id = this.empresaSeleccionada.id
+                url = `/api/archivos/all/?idEmpresa=${id}`
+                let response = await request_get(url);
+                this.allArchivos = await response.json()
+                console.log(this.allArchivos)
+            },
+            async downloadFile(pkFile) {
+                let url = `/api/archivos/${pkFile}/`
+                let response = await request_get(url);
+                if (response.ok) {
+                    let filename = response.headers.get('content-disposition').split('=');
+                    let responseAsBlob = await response.blob();
+                    url = window.URL.createObjectURL(responseAsBlob);
+                    let a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename[1];
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                } else {
+                    const message = `An error has occured here request_get ${response.status}`;
+                }
+            },
+            incremContador() {
+                this.posicion = this.posicion + 1
+                if (this.posicion + 1 == this.allData.length) {
+                    document.getElementById("incremButton").disabled = true;
+                }
+                else {
+                    document.getElementById("incremButton").disabled = false;
+                    document.getElementById("decremButton").disabled = false;
+                }
+                this.empresaSeleccionada = this.allData[this.posicion]
+                this.getArchivosList(this.empresaSeleccionada.id)
+            },
+            decremContador() {
+                this.posicion = this.posicion - 1
+                if (this.posicion == 0) {
+                    document.getElementById("decremButton").disabled = true;
+                }
+                else {
+                    document.getElementById("incremButton").disabled = false;
+                }
+                this.empresaSeleccionada = this.allData[this.posicion]
+                this.getArchivosList(this.empresaSeleccionada.id)
+            }
+
+        }
+    })
+</script>
+<!-- <script>
+    var myModal = new bootstrap.Modal(document.getElementById('StaticModal'))
+</script> -->
+
+{% endblock %}

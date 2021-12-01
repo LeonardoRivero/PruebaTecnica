@@ -1,0 +1,94 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<div id="blockContent">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a style="text-decoration:none" href="/aprob_empresas/">Ver Empresas Aprobadas</a></li>
+        </ol>
+    </nav>
+    <div class="container px-4 py-5" style="background-color:white">
+        <form id="form_upload_files" class="row g-3" @submit.prevent="crearEmpresa()"> 
+            <div class="col-md-6 position-relative">
+                <label for="nombre" class="form-label">Nombre de la Empresa</label>
+                <input type="text" class="form-control" id="nombre" v-model="empresa.nombre" required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="razonSocial" class="form-label">Razon Social</label>
+                <input type="text" class="form-control" id="razonSocial" v-model="empresa.razon_social"
+                    required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="TipoID" class="form-label">Tipo de Identificacion</label>
+                <input type="text" class="form-control" id="TipoID" v-model="empresa.NIT" required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="Identificacion" class="form-label">Identificacion</label>
+                <input type="number" class="form-control" id="Identificacion" v-model="empresa.identificacion"
+                    required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="empleados" class="form-label">Numero de Empleados</label>
+                <input type="number" class="form-control" id="empleados" v-model="empresa.num_empleados"
+                    required>
+            </div>
+            <div class="col-md-6 position-relative">
+                <label for="logo" class="form-label">Logo Url</label>
+                <input type="url" class="form-control" v-model="empresa.logo" id="logo" placeholder="https://example.com" required>
+            </div>
+            <div class="col-md-12 position-relative">
+                <label class="form-label"></label>
+                <input class="form-control bg-white" type="file" name="filesss" id="filess"></input>
+            </div>
+            <div>
+                <button class="btn btn-primary btn-block">Crear Empresa</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="/static/plugins/jquery/jquery.min.js"></script>
+<script src="/static/plugins/project/request.js"></script>
+<script src="/static/plugins/vue/vue.js"></script>
+<script>
+    vueList = new Vue({
+        delimiters: ['${', '}$'],
+        el: '#blockContent',
+        data() {
+            return {
+                allData: {},
+                position: 0,
+                empresa:{
+                    nombre:"",
+                    razon_social:"",
+                    NIT:"",
+                    identificacion:"",
+                    num_empleados:"",
+                    logo:""
+                }
+            }
+        },
+        mounted() {
+            // this.getEmpresaList()
+        },
+        methods: {
+            crearEmpresa:async function() {
+                let url = "/api/empresa/all/"
+                let data = JSON.stringify(this.empresa)
+
+                let response = await request_post(url,data);
+                this.allData = await response.json()
+                
+                url='/api/archivos/all/';
+                const input = document.getElementById("filess");
+                const dataFiles = new FormData();
+                dataFiles.append("ruta_archivo", input.files[0]);
+                dataFiles.append("empresa",  this.allData.id);
+                response = await request_blob(url,dataFiles);
+                window.location.replace("/aprob_empresas/");
+            }
+        }
+    })
+</script>
+
+{% endblock %}
