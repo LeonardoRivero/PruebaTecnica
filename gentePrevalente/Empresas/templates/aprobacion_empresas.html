@@ -5,14 +5,21 @@
 <div id="blockContent">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a style="text-decoration:none" href="/agregar_empresa/">Agregar Empresa</a></li>
+            <li class="breadcrumb-item"><a style="text-decoration:none" href="/agregar_empresa/">Agregar Empresa</a>
+            </li>
             <li class="breadcrumb-item active" aria-current="page">Aprobacion de Empresas</li>
         </ol>
     </nav>
     <div class="container px-4 py-5" style="background-color:white">
         <form class="row g-3 needs-validation">
-            <div class="d-flex justify-content-center">
-                <img v-bind:src="empresaSeleccionada.logo" alt="logo" class="center" height="87" width="100">
+            <div  class="col-md-10 position-relative">
+                <div class="d-flex justify-content-center">
+                    <img v-bind:src="empresaSeleccionada.logo" alt="logo" class="center" height="87" width="100">
+                </div>
+            </div>
+            <div  class="col-md-2 position-relative">
+                <button class="form-control bg-success" type="button" @click="aprobEmpresa()"><i class="bi bi-check-lg"></i>Empresa Aprobada</button>
+                <button class="form-control bg-danger" type="button" @click="reprobEmpresa()"><i class="bi bi-x-lg"></i>Empresa Reprobada</button>
             </div>
             <div class="col-md-6 position-relative">
                 <label for="nombre" class="form-label">Nombre de la Empresa</label>
@@ -54,7 +61,12 @@
             <img src="../static/plugins/svg/arrow-left-circle-fill.svg" class="card-img-left bg" alt="..." height="50"
                 width="50"></i>
         </button>
-        ${posicion+1}$ of ${allData.length}$
+        <div v-if="empresaSeleccionada.aprobacion">
+            Empresa ${posicion+1}$ of ${allData.length}$
+        </div>
+        <div v-else>
+            Empresa ${posicion+1}$ of ${allData.length}$ falta de aprobacion
+          </div>
         <button type="button" class="btn btn-light" @click="incremContador()" id="incremButton">
             <img src="../static/plugins/svg/arrow-right-circle-fill.svg" class="card-img-left bg" alt="..." height="50"
                 width="50">
@@ -94,31 +106,27 @@
                 posicion: 0,
                 empresaSeleccionada: [],
                 windowHeight: window.innerHeight,
-                txt: ''
             }
         },
         watch: {
             windowHeight(newHeight, oldHeight) {
-                this.txt = `it changed to ${newHeight} from ${oldHeight}`;
-                console.log(this.txt)
                 this.getArchivosList()
             }
         },
         mounted() {
             this.getEmpresaList()
             this.$nextTick(() => {
-                window.addEventListener('resize', this.onResize);
+                window.addEventListener('resize', this.redimension);
             })
         },
         methods: {
-            onResize() {
+            redimension() {
                 this.windowHeight = window.innerHeight
             },
             async getEmpresaList() {
                 url = "/api/empresa/all/"
                 let response = await request_get(url);
                 this.allData = await response.json()
-                console.log(this.allData);
                 this.empresaSeleccionada = this.allData[this.posicion]
             },
             async getArchivosList(id) {
@@ -167,8 +175,20 @@
                 }
                 this.empresaSeleccionada = this.allData[this.posicion]
                 this.getArchivosList(this.empresaSeleccionada.id)
+            },
+            async aprobEmpresa(){
+                this.empresaSeleccionada["aprobacion"]=true
+                let url = `/api/empresa/${this.empresaSeleccionada.id}/`
+                let data = JSON.stringify(this.empresaSeleccionada)
+                let response = await request_put(url,data);
+            },
+            async reprobEmpresa(){
+                this.empresaSeleccionada["aprobacion"]=false
+                let url = `/api/empresa/${this.empresaSeleccionada.id}/`
+                let data = JSON.stringify(this.empresaSeleccionada)
+                let response = await request_put(url,data);
             }
-
+            
         }
     })
 </script>

@@ -10,6 +10,7 @@ class Empresa(models.Model):
     NIT = models.CharField(max_length=10)
     num_empleados= models.IntegerField()
     logo=models.CharField(max_length=4096)
+    aprobacion=models.BooleanField(default=False,blank=True)
 
     objects = models.Manager()
 
@@ -20,3 +21,4 @@ class ArchivosEmpresa(models.Model):
     id=models.AutoField(primary_key=True)
     ruta_archivo=models.CharField(max_length=512)
     empresa=models.ForeignKey(Empresa,on_delete=models.CASCADE)
+

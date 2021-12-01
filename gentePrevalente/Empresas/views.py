@@ -18,6 +18,7 @@ from django.conf import settings
 class EmpresaList(APIView):
     """Lista todas las empresa o crea una nueva
     """
+
     def get(self, request, format=None):
         queryset = Empresa.objects.all()
         serializer = RelacionEmpresaSerializer(queryset, many=True)
@@ -79,7 +80,7 @@ class ArchivosEmpresaList(APIView):
 
     def get(self, request, format=None):
         if 'idEmpresa' in request.GET:
-            id_empresa=request.GET['idEmpresa']
+            id_empresa = request.GET['idEmpresa']
             queryset = ArchivosEmpresa.objects.filter(empresa=id_empresa)
         else:
             queryset = ArchivosEmpresa.objects.all()
@@ -91,6 +92,7 @@ class ArchivosEmpresaDetail(APIView):
     """
     Recuepera,Actualiza o Elimina una archivo subido de una empresa segun su pk.
     """
+
     def get_object(self, pk):
         try:
             return ArchivosEmpresa.objects.get(pk=pk)
@@ -99,11 +101,12 @@ class ArchivosEmpresaDetail(APIView):
 
     def get(self, request, pk, format=None):
             queryset = self.get_object(pk)
-            location_file=queryset.ruta_archivo
+            location_file = queryset.ruta_archivo
             file_path = os.path.join(settings.MEDIA_ROOT, location_file)
-            
+
             file_report = File(open(file_path, "rb"))
-            response = HttpResponse(file_report, content_type="application/pdf")
+            response = HttpResponse(
+                file_report, content_type="application/pdf")
             response['Content-Disposition'] = 'attachment; filename=%s' % location_file
             return response
 
@@ -119,3 +122,4 @@ class ArchivosEmpresaDetail(APIView):
         queryset = self.get_object(pk)
         queryset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+

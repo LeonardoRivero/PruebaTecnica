@@ -20,5 +20,6 @@ urlpatterns = [
     path('api/empresa/<int:pk>/', EmpresaDetail.as_view()),
     path('api/archivos/all/', csrf_exempt(ArchivosEmpresaList.as_view())),
     path('api/archivos/<int:pk>/', csrf_exempt(ArchivosEmpresaDetail.as_view())),
+    path('api/estado_empresa/all/', csrf_exempt(ArchivosEmpresaList.as_view())),
     path('', include(template_patterns)),
 ]

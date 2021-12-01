@@ -68,14 +68,10 @@
                 }
             }
         },
-        mounted() {
-            // this.getEmpresaList()
-        },
         methods: {
             crearEmpresa:async function() {
                 let url = "/api/empresa/all/"
                 let data = JSON.stringify(this.empresa)
-
                 let response = await request_post(url,data);
                 this.allData = await response.json()
                 
