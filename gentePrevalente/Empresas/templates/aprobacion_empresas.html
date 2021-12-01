@@ -12,14 +12,16 @@
     </nav>
     <div class="container px-4 py-5" style="background-color:white">
         <form class="row g-3 needs-validation">
-            <div  class="col-md-10 position-relative">
+            <div class="col-md-10 position-relative">
                 <div class="d-flex justify-content-center">
                     <img v-bind:src="empresaSeleccionada.logo" alt="logo" class="center" height="87" width="100">
                 </div>
             </div>
-            <div  class="col-md-2 position-relative">
-                <button class="form-control bg-success" type="button" @click="aprobEmpresa()"><i class="bi bi-check-lg"></i>Empresa Aprobada</button>
-                <button class="form-control bg-danger" type="button" @click="reprobEmpresa()"><i class="bi bi-x-lg"></i>Empresa Reprobada</button>
+            <div class="col-md-2 position-relative">
+                <button class="form-control bg-success" type="button" @click="aprobEmpresa()"><i
+                        class="bi bi-check-lg"></i>Empresa Aprobada</button>
+                <button class="form-control bg-danger" type="button" @click="reprobEmpresa()"><i
+                        class="bi bi-x-lg"></i>Empresa Reprobada</button>
             </div>
             <div class="col-md-6 position-relative">
                 <label for="nombre" class="form-label">Nombre de la Empresa</label>
@@ -57,21 +59,29 @@
                 </div>
             </div>
         </form>
-        <button type="button" class="btn btn-light" @click="decremContador()" id="decremButton">
-            <img src="../static/plugins/svg/arrow-left-circle-fill.svg" class="card-img-left bg" alt="..." height="50"
-                width="50"></i>
-        </button>
-        <div v-if="empresaSeleccionada.aprobacion">
-            Empresa ${posicion+1}$ of ${allData.length}$
-        </div>
-        <div v-else>
-            Empresa ${posicion+1}$ of ${allData.length}$ falta de aprobacion
-          </div>
-        <button type="button" class="btn btn-light" @click="incremContador()" id="incremButton">
-            <img src="../static/plugins/svg/arrow-right-circle-fill.svg" class="card-img-left bg" alt="..." height="50"
-                width="50">
-        </button>
 
+        <div class="row">
+            <div class="col-md-1 position-relative">
+                <button type="button" class="btn btn-light" @click="decremContador()" id="decremButton">
+                    <img src="../static/plugins/svg/arrow-left-circle-fill.svg" class="card-img-left bg" alt="..."
+                        height="50" width="50"></i>
+                </button>
+            </div>
+            <div class="col-md-4 position-relative">
+                <div v-if="empresaSeleccionada.aprobacion">
+                    Empresa ${posicion+1}$ of ${allData.length}$
+                </div>
+                <div v-else>
+                    Empresa ${posicion+1}$ of ${allData.length}$ falta de aprobacion
+                </div>
+            </div>
+            <div class="col-md-1 position-relative">
+                <button type="button" class="btn btn-light" @click="incremContador()" id="incremButton">
+                    <img src="../static/plugins/svg/arrow-right-circle-fill.svg" class="card-img-left bg" alt="..."
+                        height="50" width="50">
+                </button>
+            </div>
+        </div>
         <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="StaticModal" tabindex="-1"
             aria-labelledby="basicModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -176,19 +186,19 @@
                 this.empresaSeleccionada = this.allData[this.posicion]
                 this.getArchivosList(this.empresaSeleccionada.id)
             },
-            async aprobEmpresa(){
-                this.empresaSeleccionada["aprobacion"]=true
+            async aprobEmpresa() {
+                this.empresaSeleccionada["aprobacion"] = true
                 let url = `/api/empresa/${this.empresaSeleccionada.id}/`
                 let data = JSON.stringify(this.empresaSeleccionada)
-                let response = await request_put(url,data);
+                let response = await request_put(url, data);
             },
-            async reprobEmpresa(){
-                this.empresaSeleccionada["aprobacion"]=false
+            async reprobEmpresa() {
+                this.empresaSeleccionada["aprobacion"] = false
                 let url = `/api/empresa/${this.empresaSeleccionada.id}/`
                 let data = JSON.stringify(this.empresaSeleccionada)
-                let response = await request_put(url,data);
+                let response = await request_put(url, data);
             }
-            
+
         }
     })
 </script>
